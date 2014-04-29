@@ -1,0 +1,43 @@
+<html>
+<body>
+  <script type="text/javascript" src="/_ah/channel/jsapi"></script>
+  <script>
+    var channel = new goog.appengine.Channel('{{.token}}');
+    var socket = channel.open({
+       onopen : function(){
+          document.getElementById("area").innerHTML+="{{.token}} ::: onopen<br />";　
+      }
+      , onmessage : function(message) {
+          document.getElementById("area").innerHTML+="onmessage::"+message.data+"<br />";　
+      }
+      , onerror : function(error) {
+          document.getElementById("area").innerHTML+="onerror<br />";　
+      }
+      , onclose : function(){
+       　   document.getElementById("area").innerHTML+="onclose<br />";　
+   }
+});
+    console.log(socket);
+</script>
+<script>
+   function exe() {
+        var msg = document.forms[0].msg.value;
+      var path = '/receive?g=' +  {{.me}} + {{.key}} + '&msg=' + msg;
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', path, true);
+      xhr.send();
+  }
+</script>
+
+token = {{.token}}<br>
+me = {{.me}}
+
+<form action="#">
+    <input type="input" name="msg" value="">
+    <input type="button" value="Send" onclick="return exe()">
+</form>
+<div id="area"></div>
+
+<a href="/logout">Log out</a>
+</body>
+</html>
