@@ -18,16 +18,16 @@
    }
 });
     console.log(socket);
-</script>
-<script>
+  </script>
+  <script>
    function exe() {
         var msg = document.forms[0].msg.value;
-      var path = '/receive?g=' +  {{.me}} + {{.key}} + '&msg=' + msg;
+      var path = '/receive?g=' + {{.key}} + '&msg=' + msg;
       var xhr = new XMLHttpRequest();
       xhr.open('POST', path, true);
       xhr.send();
   }
-</script>
+  </script>
 
 token = {{.token}}<br>
 me = {{.me}}

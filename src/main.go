@@ -16,21 +16,21 @@ func init() {
 }
 
 var mainTemplate = template.Must(template.ParseFiles("tpl/index.html"))
-var key = "12345"
+var key_suffix = "12345"
 var keys = []string{}
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	u := user.Current(c)
 
-	key2 := u.ID + key
-	tok, err := channel.Create(c, key2)
+	key := u.ID + key_suffix
+	tok, err := channel.Create(c, key)
 	if err != nil {
 		http.Error(w, "Couldn't create Channel", http.StatusInternalServerError)
 		c.Errorf("channel.Create: %v", err)
 		return
 	}
-	keys = append(keys, key2)
+	keys = append(keys, key)
 
 	err = mainTemplate.Execute(w, map[string]string{
 		"token": tok,
