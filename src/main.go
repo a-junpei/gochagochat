@@ -17,11 +17,13 @@ func init() {
 
 var mainTemplate = template.Must(template.ParseFiles("tpl/index.html"))
 var key_suffix = "12345"
-var keys = []string{}
+var keys = map[string]bool{}
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	u := user.Current(c)
+
+	c.Infof("keys = %v", keys)
 
 	key := u.ID + key_suffix
 	tok, err := channel.Create(c, key)
@@ -30,7 +32,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		c.Errorf("channel.Create: %v", err)
 		return
 	}
-	keys = append(keys, key)
+	_, ok := keys[key]
+	if ok {
+		c.Infof("Already")
+	} else {
+		keys[key] = true
+	}
 
 	err = mainTemplate.Execute(w, map[string]string{
 		"token": tok,
@@ -48,16 +55,26 @@ func receive(w http.ResponseWriter, r *http.Request) {
 	msg := r.FormValue("msg")
 	c.Infof("keys = %v", keys)
 
-	for i := range keys {
-		channel.Send(c, keys[i], "go receive!["+time.Now().String()+"] "+msg)
+	for k := range keys {
+		channel.Send(c, k, "go receive!["+time.Now().String()+"] "+msg)
 	}
 }
 
 func logout(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
+
+	g := r.FormValue("g")
+	c.Infof("g = " + g)
+
+	delete(keys, g)
+	c.Infof("keys = %v", keys)
+
 	url, err := user.LogoutURL(c, "/")
 	if err != nil {
 		return
 	}
+
+	c.Infof("url = " + url)
+
 	http.Redirect(w, r, url, 302)
 }
