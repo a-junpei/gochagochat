@@ -1,40 +1,41 @@
 <html>
 <body>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <script type="text/javascript" src="/_ah/channel/jsapi"></script>
   <script>
     var channel = new goog.appengine.Channel('{{.token}}');
     var socket = channel.open({
        onopen : function(){
-          document.getElementById("area").innerHTML+="{{.token}} ::: onopen<br />";　
+          $("#area").append("{{.token}} ::: onopen<br />");　
       }
       , onmessage : function(message) {
-          document.getElementById("area").innerHTML+="onmessage::"+message.data+"<br />";　
+          $("#area").append("onmessage::"+message.data+"<br />");　
       }
       , onerror : function(error) {
-          document.getElementById("area").innerHTML+="onerror<br />";　
+          $("#area").append("onerror<br />");　
       }
       , onclose : function(){
-       　   document.getElementById("area").innerHTML+="onclose<br />";　
-   }
-});
+          $("#area").append("onclose<br />");　
+      }
+    });
     console.log(socket);
-  </script>
-  <script>
-   function exe() {
-        var msg = document.forms[0].msg.value;
-      var path = '/receive?g=' + {{.key}} + '&msg=' + msg;
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', path, true);
-      xhr.send();
-  }
-  </script>
 
+    $(document).ready( function() {
+        $("#send").click(function(){
+          $.ajax({
+            type: "POST",
+            url: '/receive',
+            data: { g: "{{.key}}", msg: $("#msg").val() }
+          });
+        });
+    });
+  </script>
 token = {{.token}}<br>
 me = {{.me}}
 
 <form action="#">
-    <input type="input" name="msg" value="">
-    <input type="button" value="Send" onclick="return exe()">
+  <input type="input" id="msg" name="msg" value="">
+  <input type="button" id="send" value="Send">
 </form>
 <div id="area"></div>
 
